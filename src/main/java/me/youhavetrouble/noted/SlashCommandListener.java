@@ -12,16 +12,16 @@ public class SlashCommandListener extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         switch (event.getName()) {
             case "note" -> {
-                OptionMapping noteIdOption = event.getOption("content");
+                OptionMapping noteIdOption = event.getOption("note-id");
                 OptionMapping ephemeralOption = event.getOption("ephemeral");
                 if (noteIdOption == null) {
                     event.reply("Please provide a note ID.").setEphemeral(true).queue();
                     return;
                 }
                 Note note = new Note(
-                        "Note Title",
+                        "Sample Note Title",
                         null,
-                        "Test Note content",
+                        "Bottom text",
                         null,
                         null,
                         null,

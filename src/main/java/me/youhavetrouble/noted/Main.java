@@ -3,10 +3,11 @@ package me.youhavetrouble.noted;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 
 import java.io.*;
 import java.util.Collections;
@@ -21,8 +22,6 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         loadProperties();
 
-
-
         jda = JDABuilder.createLight(properties.getProperty("DISCORD_TOKEN"), Collections.emptyList())
                 .setCallbackPool(Executors.newVirtualThreadPerTaskExecutor())
                 .setActivity(Activity.customStatus("Notekeeping..."))
@@ -31,15 +30,16 @@ public class Main {
 
         jda.awaitReady();
 
-        CommandListUpdateAction commands = jda.updateCommands();
-        commands = commands.addCommands(
-                Commands.slash("note", "Get a note")
+        jda.upsertCommand(Commands.slash("note", "Get a note")
+                        .setIntegrationTypes(IntegrationType.GUILD_INSTALL, IntegrationType.USER_INSTALL)
                         .addOptions(
                                 new OptionData(OptionType.STRING, "note-id", "The ID of the note").setRequired(true),
                                 new OptionData(OptionType.BOOLEAN, "ephermeal", "Whether the note should be ephermal").setRequired(false)
                         )
-        );
-        commands.queue();
+                        .setContexts(InteractionContextType.BOT_DM, InteractionContextType.GUILD, InteractionContextType.PRIVATE_CHANNEL)
+                )
+                .queue();
+
     }
 
     private static void loadProperties() {
