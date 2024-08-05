@@ -14,13 +14,27 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 
+
 public class Main {
 
     private static final Properties properties = new Properties();
+    private static String version = "Unknown version";
     public static JDA jda;
 
     public static void main(String[] args) throws InterruptedException {
         loadProperties();
+
+        try (InputStream resource = Main.class.getClassLoader().getResourceAsStream("version.txt")) {
+            if (resource != null) {
+                version = new String(resource.readAllBytes());
+            } else {
+                System.err.println("Version file missing.");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("Starting " + version);
 
         jda = JDABuilder.createLight(properties.getProperty("DISCORD_TOKEN"), Collections.emptyList())
                 .setCallbackPool(Executors.newVirtualThreadPerTaskExecutor())
@@ -66,6 +80,10 @@ public class Main {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String getVersion() {
+        return version;
     }
 
 }
