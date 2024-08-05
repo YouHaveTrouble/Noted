@@ -4,7 +4,6 @@ import me.youhavetrouble.noted.note.Note;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 
 public class SlashCommandListener extends ListenerAdapter {
 
@@ -15,35 +14,42 @@ public class SlashCommandListener extends ListenerAdapter {
                 OptionMapping noteIdOption = event.getOption("note-id");
                 OptionMapping ephemeralOption = event.getOption("ephemeral");
                 if (noteIdOption == null) {
-                    event.reply("Please provide a note ID.").setEphemeral(true).queue();
+                    event.reply("Please provide a note ID.")
+                            .setEphemeral(true)
+                            .queue();
                     return;
                 }
-                Note note = new Note(
-                        "Sample Note Title",
-                        null,
-                        "Bottom text",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
-                );
 
-                ReplyCallbackAction action = event.replyEmbeds(note.toEmbed());
-                if (ephemeralOption != null && ephemeralOption.getAsBoolean()) {
-                    action = action.setEphemeral(true);
+                boolean ephemeral;
+                try {
+                    ephemeral = ephemeralOption != null && ephemeralOption.getAsBoolean();
+                } catch (IllegalArgumentException e) {
+                    event.reply("Invalid value for ephemeral.")
+                            .setEphemeral(true)
+                            .queue();
+                    return;
                 }
-                action.queue();
-
+                String noteId = noteIdOption.getAsString();
+                getNote(event, noteId, ephemeral);
             }
 
-            default -> {
-                event.reply("Unknown command.").setEphemeral(true).queue();
-                return;
-            }
+            default -> event.reply("Unknown command.")
+                    .setEphemeral(true)
+                    .queue();
         }
+    }
+
+    private void getNote(SlashCommandInteractionEvent event, String noteId, boolean ephemeral) {
+        Note note = Note.cache.getIfPresent(noteId);
+        if (note == null) {
+            event.reply("Note with ID %s not found.".formatted(noteId))
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+        event.replyEmbeds(note.toEmbed())
+                .setEphemeral(ephemeral)
+                .queue();
     }
 
 }

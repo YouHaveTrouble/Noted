@@ -13,12 +13,15 @@ import java.io.*;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 
 public class Main {
 
+    private static final Logger logger = Logger.getLogger("Main");
     private static final Properties properties = new Properties();
     private static String version = "Unknown version";
+    private static Storage storage;
     public static JDA jda;
 
     public static void main(String[] args) throws InterruptedException {
@@ -28,13 +31,17 @@ public class Main {
             if (resource != null) {
                 version = new String(resource.readAllBytes());
             } else {
-                System.err.println("Version file missing.");
+                logger.severe("Version file missing.");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        System.out.println("Starting " + version);
+        storage = new Storage();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(Main::shutdown));
+
+        logger.info("Starting " + version);
 
         jda = JDABuilder.createLight(properties.getProperty("DISCORD_TOKEN"), Collections.emptyList())
                 .setCallbackPool(Executors.newVirtualThreadPerTaskExecutor())
@@ -73,7 +80,7 @@ public class Main {
         try (InputStream resource = Main.class.getClassLoader().getResourceAsStream("noted.properites");
              OutputStream outputStream = new FileOutputStream(file)) {
             if (resource == null) {
-                System.err.println("Default noted.properties missing.");
+                logger.severe("Default noted.properties missing.");
                 return;
             }
             outputStream.write(resource.readAllBytes());
@@ -84,6 +91,11 @@ public class Main {
 
     public static String getVersion() {
         return version;
+    }
+
+    private static void shutdown() {
+        jda.shutdown();
+        storage.shutdown();
     }
 
 }
