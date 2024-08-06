@@ -19,7 +19,6 @@ public class SlashCommandListener extends ListenerAdapter {
                             .queue();
                     return;
                 }
-
                 boolean ephemeral;
                 try {
                     ephemeral = ephemeralOption != null && ephemeralOption.getAsBoolean();
@@ -32,6 +31,29 @@ public class SlashCommandListener extends ListenerAdapter {
                 String noteId = noteIdOption.getAsString();
                 getNote(event, noteId, ephemeral);
             }
+            case "add-note" -> {
+                Long adminId = Main.getAdminId();
+                if (adminId == null || !adminId.equals(event.getUser().getIdLong())) {
+                    event.reply("You do not have permission to use this command.")
+                            .setEphemeral(true)
+                            .queue();
+                    return;
+                }
+
+                OptionMapping aliasOption = event.getOption("alias");
+                OptionMapping titleOption = event.getOption("title");
+                OptionMapping contentOption = event.getOption("content");
+                if (titleOption == null || contentOption == null || aliasOption == null) {
+                    event.reply("Please provide a alias, title and content.")
+                            .setEphemeral(true)
+                            .queue();
+                    return;
+                }
+                String alias = aliasOption.getAsString();
+                String title = titleOption.getAsString();
+                String content = contentOption.getAsString();
+                addNote(event, alias, title, content);
+            }
 
             default -> event.reply("Unknown command.")
                     .setEphemeral(true)
@@ -39,16 +61,39 @@ public class SlashCommandListener extends ListenerAdapter {
         }
     }
 
-    private void getNote(SlashCommandInteractionEvent event, String noteId, boolean ephemeral) {
-        Note note = Note.cache.getIfPresent(noteId);
+    private void getNote(SlashCommandInteractionEvent event, String noteAlias, boolean ephemeral) {
+        Note note = Main.getStorage().getNote(noteAlias);
         if (note == null) {
-            event.reply("Note with ID %s not found.".formatted(noteId))
+            event.reply("Note with ID %s not found.".formatted(noteAlias))
                     .setEphemeral(true)
                     .queue();
             return;
         }
+
         event.replyEmbeds(note.toEmbed())
                 .setEphemeral(ephemeral)
+                .queue();
+    }
+
+    private void addNote(SlashCommandInteractionEvent event, String noteAlias, String title, String description) {
+        Note note = Note.createNew(title, description);
+        Storage.Status status = Main.getStorage().addNote(note, noteAlias);
+
+        if (status == Storage.Status.ALIAS_EXISTS) {
+            event.reply("Alias already exists.")
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+        if (status == Storage.Status.ERROR) {
+            event.reply("An error occurred.")
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        event.reply("Note added.")
+                .setEphemeral(true)
                 .queue();
     }
 

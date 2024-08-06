@@ -1,22 +1,16 @@
 package me.youhavetrouble.noted.note;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.awt.Color;
-import java.time.Duration;
+import java.util.UUID;
 
 public class Note {
 
-    public static final Cache<String, Note> cache = Caffeine.newBuilder()
-            .maximumSize(100)
-            .expireAfterWrite(Duration.ofMinutes(1))
-            .build();
-
+    public final UUID id;
     public final String title;
     public final String titleUrl;
     public final String content;
@@ -28,7 +22,8 @@ public class Note {
     public final String footer;
     public final String footerUrl;
 
-    private Note(
+    public Note(
+            @NotNull UUID id,
             @NotNull String title,
             @Nullable String titleUrl,
             @NotNull String content,
@@ -40,6 +35,7 @@ public class Note {
             @Nullable String footer,
             @Nullable String footerUrl
     ) {
+        this.id = id;
         this.title = title;
         this.titleUrl = titleUrl;
         this.content = content;
@@ -62,6 +58,26 @@ public class Note {
                 .setFooter(footer, footerUrl)
                 .setColor(color)
                 .build();
+    }
+
+    public static Note createNew(
+            @NotNull String title,
+            @NotNull String content
+    ) {
+        UUID id = UUID.randomUUID();
+        return new Note(
+                id,
+                title,
+                null,
+                content,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
     }
 
 }

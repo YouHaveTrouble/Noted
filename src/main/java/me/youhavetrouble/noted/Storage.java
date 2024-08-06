@@ -2,11 +2,18 @@ package me.youhavetrouble.noted;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import me.youhavetrouble.noted.note.Note;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.sql.DataSource;
+import java.awt.*;
 import java.io.File;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 
@@ -75,6 +82,107 @@ public class Storage {
         } catch (SQLException e) {
             logger.warning("Failed to create tables");
         }
+    }
+
+    public Status addNote(@NotNull Note note, @NotNull String alias) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            PreparedStatement statement = connection.prepareStatement("""
+                INSERT INTO notes (id, title, title_url, description, image_url, thumbnail_url, color, author, author_url, footer, footer_url)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """);
+
+            statement.setString(1, note.id.toString());
+            statement.setString(2, note.title);
+            statement.setString(3, note.titleUrl);
+            statement.setString(4, note.content);
+            statement.setString(5, note.imageUrl);
+            statement.setString(6, note.thumbnailUrl);
+            statement.setInt(7, note.color != null ? note.color.getRGB() : 0);
+            statement.setString(8, note.author);
+            statement.setString(9, note.authorUrl);
+            statement.setString(10, note.footer);
+            statement.setString(11, note.footerUrl);
+            statement.executeUpdate();
+
+            statement = connection.prepareStatement("""
+                INSERT INTO aliases (alias, note_id)
+                VALUES (?, ?)
+            """);
+            statement.setString(1, alias);
+            statement.setString(2, note.id.toString());
+            statement.executeUpdate();
+
+            connection.commit();
+            return Status.SUCCESS;
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 19) {
+                return Status.ALIAS_EXISTS;
+            }
+            return Status.ERROR;
+        }
+    }
+
+    public Status addAlias(@NotNull String alias, @NotNull UUID noteId) throws RuntimeException {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("""
+                INSERT INTO aliases (alias, note_id)
+                VALUES (?, ?)
+            """);
+            statement.setString(1, alias);
+            statement.setString(2, noteId.toString());
+            statement.executeUpdate();
+            return Status.SUCCESS;
+        } catch (SQLException e) {
+            logger.warning("Failed to add alias");
+            return Status.ALIAS_EXISTS;
+        }
+    }
+
+    @Nullable
+    public Note getNote(@NotNull String alias) {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("""
+                SELECT * FROM notes
+                WHERE id = (
+                    SELECT note_id FROM aliases
+                    WHERE alias = ?
+                )
+            """);
+            statement.setString(1, alias);
+            ResultSet resultSet = statement.executeQuery();
+
+            Color color = null;
+            try {
+                color = new Color(resultSet.getInt("color"));
+            } catch (SQLException ignored) {
+            }
+
+
+            return new Note(
+                UUID.fromString(resultSet.getString("id")),
+                resultSet.getString("title"),
+                resultSet.getString("title_url"),
+                resultSet.getString("description"),
+                resultSet.getString("image_url"),
+                resultSet.getString("thumbnail_url"),
+                color,
+                resultSet.getString("author"),
+                resultSet.getString("author_url"),
+                resultSet.getString("footer"),
+                resultSet.getString("footer_url")
+            );
+        } catch (SQLException e) {
+            logger.warning("Failed to get note");
+            return null;
+        }
+    }
+
+    public enum Status {
+        SUCCESS,
+        ALIAS_EXISTS,
+        ALIAS_NOT_FOUND,
+        ERROR
     }
 
 }
