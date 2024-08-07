@@ -1,5 +1,6 @@
 package me.youhavetrouble.noted;
 
+import me.youhavetrouble.noted.listener.SlashCommandListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -67,16 +68,46 @@ public class Main {
         jda.upsertCommand(Commands.slash("add-note", "Add a note")
                         .setIntegrationTypes(IntegrationType.GUILD_INSTALL, IntegrationType.USER_INSTALL)
                         .addOptions(
-                                new OptionData(OptionType.STRING, "alias", "An alias for the note").setRequired(true),
-                                new OptionData(OptionType.STRING, "title", "The title of the note").setRequired(true),
-                                new OptionData(OptionType.STRING, "content", "The content of the note").setRequired(true),
-                                new OptionData(OptionType.STRING, "image-url", "The image URL of the note").setRequired(false),
-                                new OptionData(OptionType.STRING, "thumbnail-url", "The thumbnail URL of the note").setRequired(false),
-                                new OptionData(OptionType.STRING, "color", "The color of the note").setRequired(false),
-                                new OptionData(OptionType.STRING, "author", "The author of the note").setRequired(false),
-                                new OptionData(OptionType.STRING, "author-url", "The author URL of the note").setRequired(false),
-                                new OptionData(OptionType.STRING, "footer", "The footer of the note").setRequired(false),
-                                new OptionData(OptionType.STRING, "footer-url", "The footer URL of the note").setRequired(false)
+                                new OptionData(OptionType.STRING, "alias", "An alias for the note")
+                                        .setMinLength(1)
+                                        .setMaxLength(256)
+                                        .setRequired(true),
+                                new OptionData(OptionType.STRING, "title", "The title of the note")
+                                        .setMinLength(1)
+                                        .setMaxLength(256)
+                                        .setRequired(true),
+                                new OptionData(OptionType.STRING, "content", "The content of the note")
+                                        .setMinLength(1)
+                                        .setMaxLength(4096)
+                                        .setRequired(true),
+                                new OptionData(OptionType.STRING, "image-url", "The image URL of the note")
+                                        .setMinLength(1)
+                                        .setMaxLength(2000)
+                                        .setRequired(false),
+                                new OptionData(OptionType.STRING, "thumbnail-url", "The thumbnail URL of the note")
+                                        .setMinLength(1)
+                                        .setMaxLength(2000)
+                                        .setRequired(false),
+                                new OptionData(OptionType.STRING, "color", "The color of the note")
+                                        .setMinLength(1)
+                                        .setMaxLength(7)
+                                        .setRequired(false),
+                                new OptionData(OptionType.STRING, "author", "The author of the note")
+                                        .setMinLength(1)
+                                        .setMaxLength(256)
+                                        .setRequired(false),
+                                new OptionData(OptionType.STRING, "author-url", "The author URL of the note")
+                                        .setMinLength(1)
+                                        .setMaxLength(2000)
+                                        .setRequired(false),
+                                new OptionData(OptionType.STRING, "footer", "The footer of the note")
+                                        .setMinLength(1)
+                                        .setMaxLength(256)
+                                        .setRequired(false),
+                                new OptionData(OptionType.STRING, "footer-url", "The footer URL of the note")
+                                        .setMinLength(1)
+                                        .setMaxLength(2000)
+                                        .setRequired(false)
                         )
                         .setContexts(InteractionContextType.BOT_DM)
                 ).queue();
