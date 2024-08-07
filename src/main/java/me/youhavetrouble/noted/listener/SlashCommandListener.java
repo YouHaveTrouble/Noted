@@ -1,5 +1,7 @@
-package me.youhavetrouble.noted;
+package me.youhavetrouble.noted.listener;
 
+import me.youhavetrouble.noted.Main;
+import me.youhavetrouble.noted.Storage;
 import me.youhavetrouble.noted.note.Note;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
