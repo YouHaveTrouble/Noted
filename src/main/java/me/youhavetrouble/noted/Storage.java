@@ -7,18 +7,22 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.sql.DataSource;
-import java.awt.*;
+import java.awt.Color;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
 
 
 public class Storage {
+
+    public final List<String> aliases = new ArrayList<>();
 
     private final Logger logger = Logger.getLogger("Storage");
 
@@ -47,7 +51,7 @@ public class Storage {
         }
 
         createTables();
-
+        aliases.addAll(getAliases());
     }
 
     protected void shutdown() {
@@ -113,6 +117,7 @@ public class Storage {
             statement.setString(2, note.id.toString());
             statement.executeUpdate();
 
+            aliases.add(alias);
             connection.commit();
             return Status.SUCCESS;
         } catch (SQLException e) {
@@ -132,10 +137,26 @@ public class Storage {
             statement.setString(1, alias);
             statement.setString(2, noteId.toString());
             statement.executeUpdate();
+            aliases.add(alias);
             return Status.SUCCESS;
         } catch (SQLException e) {
             logger.warning("Failed to add alias");
             return Status.ALIAS_EXISTS;
+        }
+    }
+
+    public List<String> getAliases() {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT alias FROM aliases");
+            ResultSet resultSet = statement.executeQuery();
+            List<String> aliases = new ArrayList<>();
+            while (resultSet.next()) {
+                aliases.add(resultSet.getString("alias"));
+            }
+            return aliases;
+        } catch (SQLException e) {
+            logger.warning("Failed to get aliases");
+            return new ArrayList<>();
         }
     }
 

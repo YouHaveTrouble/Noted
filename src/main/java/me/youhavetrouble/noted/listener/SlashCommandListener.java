@@ -3,11 +3,28 @@ package me.youhavetrouble.noted.listener;
 import me.youhavetrouble.noted.Main;
 import me.youhavetrouble.noted.Storage;
 import me.youhavetrouble.noted.note.Note;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class SlashCommandListener extends ListenerAdapter {
+
+    @Override
+    public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event) {
+        if (event.getName().equals("note") && event.getFocusedOption().getName().equals("note-id")) {
+            List<Command.Choice> options = Main.getStorage().aliases.stream()
+                    .filter(word -> word.startsWith(event.getFocusedOption().getValue()))
+                    .map(word -> new Command.Choice(word, word))
+                    .limit(25)
+                    .collect(Collectors.toList());
+            event.replyChoices(options).queue();
+        }
+    }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {

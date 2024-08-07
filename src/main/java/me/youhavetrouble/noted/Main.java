@@ -59,8 +59,8 @@ public class Main {
         jda.upsertCommand(Commands.slash("note", "Get a note")
                         .setIntegrationTypes(IntegrationType.GUILD_INSTALL, IntegrationType.USER_INSTALL)
                         .addOptions(
-                                new OptionData(OptionType.STRING, "note-id", "The ID of the note").setRequired(true),
-                                new OptionData(OptionType.BOOLEAN, "ephermeal", "Whether the note should be ephermal").setRequired(false)
+                                new OptionData(OptionType.STRING, "note-id", "The ID of the note", true, true),
+                                new OptionData(OptionType.BOOLEAN, "ephermeal", "Whether the note should be ephermal", true)
                         )
                         .setContexts(InteractionContextType.BOT_DM, InteractionContextType.GUILD, InteractionContextType.PRIVATE_CHANNEL)
                 ).queue();
