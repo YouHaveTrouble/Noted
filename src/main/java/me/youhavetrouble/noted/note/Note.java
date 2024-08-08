@@ -48,6 +48,165 @@ public class Note {
         this.footerUrl = footerUrl;
     }
 
+    public Note withTitle(@NotNull String title) {
+        return new Note(
+                id,
+                title,
+                titleUrl,
+                content,
+                imageUrl,
+                thumbnailUrl,
+                color,
+                author,
+                authorUrl,
+                footer,
+                footerUrl
+        );
+    }
+
+    public Note withTitleUrl(@Nullable String titleUrl) {
+        return new Note(
+                id,
+                title,
+                titleUrl,
+                content,
+                imageUrl,
+                thumbnailUrl,
+                color,
+                author,
+                authorUrl,
+                footer,
+                footerUrl
+        );
+    }
+
+    public Note withContent(@NotNull String content) {
+        return new Note(
+                id,
+                title,
+                titleUrl,
+                content,
+                imageUrl,
+                thumbnailUrl,
+                color,
+                author,
+                authorUrl,
+                footer,
+                footerUrl
+        );
+    }
+
+    public Note withImageUrl(@Nullable String imageUrl) {
+        return new Note(
+                id,
+                title,
+                titleUrl,
+                content,
+                imageUrl,
+                thumbnailUrl,
+                color,
+                author,
+                authorUrl,
+                footer,
+                footerUrl
+        );
+    }
+
+    public Note withThumbnailUrl(@Nullable String thumbnailUrl) {
+        return new Note(
+                id,
+                title,
+                titleUrl,
+                content,
+                imageUrl,
+                thumbnailUrl,
+                color,
+                author,
+                authorUrl,
+                footer,
+                footerUrl
+        );
+    }
+
+    public Note withColor(@Nullable Color color) {
+        return new Note(
+                id,
+                title,
+                titleUrl,
+                content,
+                imageUrl,
+                thumbnailUrl,
+                color,
+                author,
+                authorUrl,
+                footer,
+                footerUrl
+        );
+    }
+
+    public Note withAuthor(@Nullable String author) {
+        return new Note(
+                id,
+                title,
+                titleUrl,
+                content,
+                imageUrl,
+                thumbnailUrl,
+                color,
+                author,
+                authorUrl,
+                footer,
+                footerUrl
+        );
+    }
+    public Note withAuthorUrl(@Nullable String authorUrl) {
+        return new Note(
+                id,
+                title,
+                titleUrl,
+                content,
+                imageUrl,
+                thumbnailUrl,
+                color,
+                author,
+                authorUrl,
+                footer,
+                footerUrl
+        );
+    }
+
+    public Note withFooter(@Nullable String footer) {
+        return new Note(
+                id,
+                title,
+                titleUrl,
+                content,
+                imageUrl,
+                thumbnailUrl,
+                color,
+                author,
+                authorUrl,
+                footer,
+                footerUrl
+        );
+    }
+
+    public Note withFooterUrl(@Nullable String footerUrl) {
+        return new Note(
+                id,
+                title,
+                titleUrl,
+                content,
+                imageUrl,
+                thumbnailUrl,
+                color,
+                author,
+                authorUrl,
+                footer,
+                footerUrl
+        );
+    }
+
     public MessageEmbed toEmbed() {
         return new EmbedBuilder()
                 .setTitle(title, titleUrl)

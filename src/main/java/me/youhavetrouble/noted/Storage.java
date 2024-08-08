@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-
-
 public class Storage {
 
     public final List<String> aliases = new ArrayList<>();
@@ -110,8 +108,7 @@ public class Storage {
             statement.executeUpdate();
 
             statement = connection.prepareStatement("""
-                INSERT INTO aliases (alias, note_id)
-                VALUES (?, ?)
+                INSERT INTO aliases (alias, note_id) VALUES (?, ?)
             """);
             statement.setString(1, alias);
             statement.setString(2, note.id.toString());
@@ -124,6 +121,31 @@ public class Storage {
             if (e.getErrorCode() == 19) {
                 return Status.ALIAS_EXISTS;
             }
+            return Status.ERROR;
+        }
+    }
+
+    public Status editNote(UUID noteId, Note note) {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("""
+                UPDATE notes
+                SET title = ?, title_url = ?, description = ?, image_url = ?, thumbnail_url = ?, color = ?, author = ?, author_url = ?, footer = ?, footer_url = ?
+                WHERE id = ?
+            """);
+            statement.setString(1, note.title);
+            statement.setString(2, note.titleUrl);
+            statement.setString(3, note.content);
+            statement.setString(4, note.imageUrl);
+            statement.setString(5, note.thumbnailUrl);
+            statement.setInt(6, note.color != null ? note.color.getRGB() : 0);
+            statement.setString(7, note.author);
+            statement.setString(8, note.authorUrl);
+            statement.setString(9, note.footer);
+            statement.setString(10, note.footerUrl);
+            statement.setString(11, noteId.toString());
+            statement.executeUpdate();
+            return Status.SUCCESS;
+        } catch (SQLException e) {
             return Status.ERROR;
         }
     }
