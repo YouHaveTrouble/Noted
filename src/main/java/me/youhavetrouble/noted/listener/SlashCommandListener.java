@@ -42,28 +42,30 @@ public class SlashCommandListener extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        switch (event.getName()) {
-            case "note" -> {
-                OptionMapping noteIdOption = event.getOption("alias");
-                OptionMapping ephemeralOption = event.getOption("ephemeral");
-                if (noteIdOption == null) {
-                    event.reply("Please provide a note alias.")
-                            .setEphemeral(true)
-                            .queue();
-                    return;
-                }
-                boolean ephemeral = false;
-                try {
-                    ephemeral = ephemeralOption != null && ephemeralOption.getAsBoolean();
-                } catch (IllegalArgumentException e) {
-                    event.reply("Invalid value for ephemeral.")
-                            .setEphemeral(true)
-                            .queue();
-                    return;
-                }
-                String noteId = noteIdOption.getAsString();
-                getNote(event, noteId, ephemeral);
+        if (Main.command.equals(event.getName())) {
+            OptionMapping noteIdOption = event.getOption("alias");
+            OptionMapping ephemeralOption = event.getOption("ephemeral");
+            if (noteIdOption == null) {
+                event.reply("Please provide a note alias.")
+                        .setEphemeral(true)
+                        .queue();
+                return;
             }
+            boolean ephemeral = false;
+            try {
+                ephemeral = ephemeralOption != null && ephemeralOption.getAsBoolean();
+            } catch (IllegalArgumentException e) {
+                event.reply("Invalid value for ephemeral.")
+                        .setEphemeral(true)
+                        .queue();
+                return;
+            }
+            String noteId = noteIdOption.getAsString();
+            getNote(event, noteId, ephemeral);
+            return;
+        }
+
+        switch (event.getName()) {
             case "add-note" -> {
                 Long adminId = Main.getAdminId();
                 if (adminId == null || !adminId.equals(event.getUser().getIdLong())) {

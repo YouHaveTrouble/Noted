@@ -3,6 +3,7 @@ package me.youhavetrouble.noted;
 import me.youhavetrouble.noted.listener.SlashCommandListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.IntegrationType;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
@@ -25,6 +26,7 @@ public class Main {
     private static String version = "Unknown version";
     private static Storage storage;
     private static Long adminId;
+    public static String command;
     public static JDA jda;
 
     public static void main(String[] args) throws InterruptedException {
@@ -51,12 +53,20 @@ public class Main {
         jda = JDABuilder.createLight(properties.getProperty("DISCORD_TOKEN"), Collections.emptyList())
                 .setCallbackPool(Executors.newVirtualThreadPerTaskExecutor())
                 .setActivity(Activity.customStatus("Notekeeping..."))
+                .setStatus(OnlineStatus.ONLINE)
                 .addEventListeners(new SlashCommandListener())
                 .build();
 
         jda.awaitReady();
 
-        jda.upsertCommand(Commands.slash("note", "Get a note")
+        command = properties.getProperty("COMMAND", "note");
+        if (command.equals("add-note") || command.equals("edit-note")) {
+            logger.warning("The command name " + command + " is reserved. Please change the command name in noted.properties.");
+            logger.warning("The command name has been changed to 'note'.");
+            command = "note";
+        }
+
+        jda.upsertCommand(Commands.slash(command, "Get a note")
                         .setIntegrationTypes(IntegrationType.GUILD_INSTALL, IntegrationType.USER_INSTALL)
                         .addOptions(
                                 new OptionData(OptionType.STRING, "alias", "The ID of the note", true, true),
