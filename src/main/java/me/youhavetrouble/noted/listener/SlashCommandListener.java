@@ -6,10 +6,8 @@ import me.youhavetrouble.noted.note.Note;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.InteractionType;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 
 import java.awt.*;
 import java.util.List;
@@ -215,7 +213,7 @@ public class SlashCommandListener extends ListenerAdapter {
 
         if (shouldOpenModal) {
             // TODO open modal with few basic fields
-            event.reply("Here a modal should open. After I make it.")
+            event.reply("You need to provide arguments what parts of the note to edit.")
                     .setEphemeral(true)
                     .queue();
             return;
