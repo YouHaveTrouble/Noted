@@ -176,6 +176,14 @@ public class Main {
                 )
                 .setContexts(InteractionContextType.BOT_DM)
         ).queue();
+
+        jda.upsertCommand(Commands.slash("delete-note", "Delete a note")
+                .setIntegrationTypes(IntegrationType.USER_INSTALL)
+                .addOptions(
+                        new OptionData(OptionType.STRING, "alias", "The ID of the note", true, true)
+                )
+                .setContexts(InteractionContextType.BOT_DM)
+        ).queue();
     }
 
     private static void loadProperties() {

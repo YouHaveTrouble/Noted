@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.awt.Color;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SlashCommandListener extends ListenerAdapter {
@@ -28,11 +29,16 @@ public class SlashCommandListener extends ListenerAdapter {
             "footer-url"
     );
 
+    private final Set<String> aliases;
+
+    public SlashCommandListener() {
+        aliases = Main.getStorage().getAliases();
+    }
+
     @Override
     public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event) {
-        if (!event.getName().equals("note") || event.getName().equals("edit-note")) return;
         if (!event.getFocusedOption().getName().equals("alias")) return;
-        List<Command.Choice> options = Main.getStorage().aliases.stream()
+        List<Command.Choice> options = aliases.stream()
                 .filter(word -> word.startsWith(event.getFocusedOption().getValue()))
                 .map(word -> new Command.Choice(word, word))
                 .limit(25)
@@ -86,6 +92,16 @@ public class SlashCommandListener extends ListenerAdapter {
                 }
                 editNote(event);
             }
+            case "delete-note" -> {
+                Long adminId = Main.getAdminId();
+                if (adminId == null || !adminId.equals(event.getUser().getIdLong())) {
+                    event.reply("You do not have permission to use this command.")
+                            .setEphemeral(true)
+                            .queue();
+                    return;
+                }
+                deleteNote(event);
+            }
 
             default -> event.reply("Unknown command.")
                     .setEphemeral(true)
@@ -96,7 +112,7 @@ public class SlashCommandListener extends ListenerAdapter {
     private void getNote(SlashCommandInteractionEvent event, String noteAlias, boolean ephemeral) {
         Note note = Main.getStorage().getNote(noteAlias);
         if (note == null) {
-            event.reply("Note with ID %s not found.".formatted(noteAlias))
+            event.reply("Note with alias %s not found.".formatted(noteAlias))
                     .setEphemeral(true)
                     .queue();
             return;
@@ -168,9 +184,11 @@ public class SlashCommandListener extends ListenerAdapter {
             note = note.withFooterUrl(footerUrlOption.getAsString());
         }
 
-        Storage.Status status = Main.getStorage().addNote(note, aliasOption.getAsString());
+        String alias = aliasOption.getAsString();
+        Storage.Status status = Main.getStorage().addNote(note, alias);
 
         if (status == Storage.Status.SUCCESS) {
+            aliases.add(alias);
             event.reply("Note added.")
                     .setEphemeral(true)
                     .queue();
@@ -290,6 +308,37 @@ public class SlashCommandListener extends ListenerAdapter {
                     .queue();
         }
 
+    }
+
+    private void deleteNote(SlashCommandInteractionEvent event) {
+        OptionMapping noteAliasMapping = event.getOption("alias");
+        if (noteAliasMapping == null) {
+            event.reply("Please provide a note alias.")
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+        String noteAlias = noteAliasMapping.getAsString();
+
+        Note note = Main.getStorage().getNote(noteAlias);
+        if (note == null) {
+            event.reply("Note with alias %s not found.".formatted(noteAlias))
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        Storage.Status status = Main.getStorage().deleteNote(note.id);
+        if (status == Storage.Status.SUCCESS) {
+            aliases.remove(noteAlias);
+            event.reply("Note deleted.")
+                    .setEphemeral(true)
+                    .queue();
+        } else {
+            event.reply("Failed to delete note.")
+                    .setEphemeral(true)
+                    .queue();
+        }
     }
 
 }

@@ -13,9 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class Storage {
@@ -150,6 +148,20 @@ public class Storage {
         }
     }
 
+    public Status deleteNote(@NotNull UUID noteId) {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM notes WHERE id = ?");
+            statement.setString(1, noteId.toString());
+            statement.executeUpdate();
+            statement = connection.prepareStatement("DELETE FROM aliases WHERE note_id = ?");
+            statement.setString(1, noteId.toString());
+            statement.executeUpdate();
+            return Status.SUCCESS;
+        } catch (SQLException e) {
+            return Status.ERROR;
+        }
+    }
+
     public Status addAlias(@NotNull String alias, @NotNull UUID noteId) throws RuntimeException {
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("""
@@ -167,18 +179,18 @@ public class Storage {
         }
     }
 
-    public List<String> getAliases() {
+    public Set<String> getAliases() {
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement statement = connection.prepareStatement("SELECT alias FROM aliases");
             ResultSet resultSet = statement.executeQuery();
-            List<String> aliases = new ArrayList<>();
+            Set<String> aliases = new HashSet<>();
             while (resultSet.next()) {
                 aliases.add(resultSet.getString("alias"));
             }
             return aliases;
         } catch (SQLException e) {
             logger.warning("Failed to get aliases");
-            return new ArrayList<>();
+            return new HashSet<>();
         }
     }
 
@@ -194,13 +206,15 @@ public class Storage {
             """);
             statement.setString(1, alias);
             ResultSet resultSet = statement.executeQuery();
+            if (!resultSet.next()) {
+                return null;
+            }
 
             Color color = null;
             try {
                 color = new Color(resultSet.getInt("color"));
             } catch (SQLException ignored) {
             }
-
 
             return new Note(
                 UUID.fromString(resultSet.getString("id")),
