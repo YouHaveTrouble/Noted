@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.List;
 import java.util.stream.Collectors;
 
