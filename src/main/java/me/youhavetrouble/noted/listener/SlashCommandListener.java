@@ -3,6 +3,7 @@ package me.youhavetrouble.noted.listener;
 import me.youhavetrouble.noted.Main;
 import me.youhavetrouble.noted.Storage;
 import me.youhavetrouble.noted.note.Note;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -73,8 +74,7 @@ public class SlashCommandListener extends ListenerAdapter {
 
         switch (event.getName()) {
             case "add-note" -> {
-                Long adminId = Main.getAdminId();
-                if (adminId == null || !adminId.equals(event.getUser().getIdLong())) {
+                if (!isAdmin(event.getUser())) {
                     event.reply("You do not have permission to use this command.")
                             .setEphemeral(true)
                             .queue();
@@ -83,8 +83,7 @@ public class SlashCommandListener extends ListenerAdapter {
                 addNote(event);
             }
             case "edit-note" -> {
-                Long adminId = Main.getAdminId();
-                if (adminId == null || !adminId.equals(event.getUser().getIdLong())) {
+                if (!isAdmin(event.getUser())) {
                     event.reply("You do not have permission to use this command.")
                             .setEphemeral(true)
                             .queue();
@@ -93,8 +92,7 @@ public class SlashCommandListener extends ListenerAdapter {
                 editNote(event);
             }
             case "delete-note" -> {
-                Long adminId = Main.getAdminId();
-                if (adminId == null || !adminId.equals(event.getUser().getIdLong())) {
+                if (!isAdmin(event.getUser())) {
                     event.reply("You do not have permission to use this command.")
                             .setEphemeral(true)
                             .queue();
@@ -102,11 +100,34 @@ public class SlashCommandListener extends ListenerAdapter {
                 }
                 deleteNote(event);
             }
+            case "add-alias" -> {
+                if (!isAdmin(event.getUser())) {
+                    event.reply("You do not have permission to use this command.")
+                            .setEphemeral(true)
+                            .queue();
+                    return;
+                }
+                addAlias(event);
+            }
+            case "delete-alias" -> {
+                if (!isAdmin(event.getUser())) {
+                    event.reply("You do not have permission to use this command.")
+                            .setEphemeral(true)
+                            .queue();
+                    return;
+                }
+                deleteAlias(event);
+            }
 
             default -> event.reply("Unknown command.")
                     .setEphemeral(true)
                     .queue();
         }
+    }
+
+    private boolean isAdmin(User user) {
+        Long adminId = Main.getAdminId();
+        return adminId != null && adminId.equals(user.getIdLong());
     }
 
     private void getNote(SlashCommandInteractionEvent event, String noteAlias, boolean ephemeral) {
@@ -339,6 +360,83 @@ public class SlashCommandListener extends ListenerAdapter {
                     .setEphemeral(true)
                     .queue();
         }
+    }
+
+    private void addAlias(SlashCommandInteractionEvent event) {
+        OptionMapping noteAliasMapping = event.getOption("alias");
+        if (noteAliasMapping == null) {
+            event.reply("Please provide a note alias.")
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+        OptionMapping newAliasMapping = event.getOption("new-alias");
+        if (newAliasMapping == null) {
+            event.reply("Please provide a new alias.")
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        String noteAlias = noteAliasMapping.getAsString();
+
+        Note note = Main.getStorage().getNote(noteAlias);
+        if (note == null) {
+            event.reply("Note with alias %s not found.".formatted(noteAlias))
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        Storage.Status status = Main.getStorage().addAlias(newAliasMapping.getAsString(), note.id);
+        if (status == Storage.Status.SUCCESS) {
+            aliases.add(newAliasMapping.getAsString());
+            event.reply("Alias added.")
+                    .setEphemeral(true)
+                    .queue();
+        } else if (status == Storage.Status.ALIAS_EXISTS) {
+            event.reply("Alias already exists.")
+                    .setEphemeral(true)
+                    .queue();
+        } else {
+            event.reply("Failed to add alias.")
+                    .setEphemeral(true)
+                    .queue();
+        }
+
+    }
+
+    private void deleteAlias(SlashCommandInteractionEvent event) {
+        OptionMapping aliasMapping = event.getOption("alias");
+        if (aliasMapping == null) {
+            event.reply("Please provide a alias.")
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        String alias = aliasMapping.getAsString();
+
+        Storage.Status status = Main.getStorage().deleteAlias(alias);
+        System.out.print(status);
+        switch (status) {
+            case SUCCESS -> {
+                aliases.remove(alias);
+                event.reply("Alias deleted.")
+                        .setEphemeral(true)
+                        .queue();
+            }
+            case ALIAS_NOT_FOUND -> event.reply("Provided alias does not exist.")
+                    .setEphemeral(true)
+                    .queue();
+            case ALIAS_IS_REQUIRED -> event.reply("At least one alias per note is required.")
+                    .setEphemeral(true)
+                    .queue();
+            case null, default -> event.reply("Failed to delete alias.")
+                    .setEphemeral(true)
+                    .queue();
+        }
+
     }
 
 }

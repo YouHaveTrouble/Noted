@@ -184,6 +184,24 @@ public class Main {
                 )
                 .setContexts(InteractionContextType.BOT_DM)
         ).queue();
+
+        jda.upsertCommand(Commands.slash("add-alias", "Add alias to a note")
+                .setIntegrationTypes(IntegrationType.USER_INSTALL)
+                .addOptions(
+                        new OptionData(OptionType.STRING, "alias", "Existing alias of a note", true, true),
+                        new OptionData(OptionType.STRING, "new-alias", "New alias for the note", true)
+                )
+                .setContexts(InteractionContextType.BOT_DM)
+        ).queue();
+
+        jda.upsertCommand(Commands.slash("delete-alias", "Remove alias to a note")
+                .setIntegrationTypes(IntegrationType.USER_INSTALL)
+                .addOptions(
+                        new OptionData(OptionType.STRING, "alias", "Existing alias of a note", true, true)
+                )
+                .setContexts(InteractionContextType.BOT_DM)
+        ).queue();
+
     }
 
     private static void loadProperties() {

@@ -37,7 +37,7 @@ public class Storage {
         config.setJdbcUrl("jdbc:sqlite:data/data.db");
         config.setConnectionTestQuery("SELECT 1");
         config.setMaxLifetime(60000); // 60 Sec
-        config.setMaximumPoolSize(Math.min(1, Runtime.getRuntime().availableProcessors() / 4));
+        config.setMaximumPoolSize(Math.min(4, Runtime.getRuntime().availableProcessors() / 4));
         dataSource = new HikariDataSource(config);
 
         try (Connection connection = dataSource.getConnection()) {
@@ -174,8 +174,36 @@ public class Storage {
             aliases.add(alias);
             return Status.SUCCESS;
         } catch (SQLException e) {
-            logger.warning("Failed to add alias");
+            logger.warning(e.getMessage());
             return Status.ALIAS_EXISTS;
+        }
+    }
+
+    public Status deleteAlias(@NotNull String alias) {
+        try (Connection connection = dataSource.getConnection()) {
+
+            Note note = getNote(alias);
+            if (note == null) {
+                return Status.ALIAS_NOT_FOUND;
+            }
+
+            PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM aliases WHERE alias = ?");
+            statement.setString(1, alias);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                if (resultSet.getInt(1) <= 1) {
+                    // Only one alias left, don't allow deletion
+                    return Status.ALIAS_IS_REQUIRED;
+                }
+            }
+
+            statement = connection.prepareStatement("DELETE FROM aliases WHERE alias = ?");
+            statement.setString(1, alias);
+            statement.executeUpdate();
+            aliases.remove(alias);
+            return Status.SUCCESS;
+        } catch (SQLException e) {
+            return Status.ERROR;
         }
     }
 
@@ -239,6 +267,7 @@ public class Storage {
         SUCCESS,
         ALIAS_EXISTS,
         ALIAS_NOT_FOUND,
+        ALIAS_IS_REQUIRED,
         ERROR
     }
 
