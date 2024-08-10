@@ -52,7 +52,7 @@ public class Main {
 
         jda = JDABuilder.createLight(properties.getProperty("DISCORD_TOKEN"), Collections.emptyList())
                 .setCallbackPool(Executors.newVirtualThreadPerTaskExecutor())
-                .setActivity(Activity.customStatus("Notekeeping..."))
+                .setActivity(Activity.customStatus("Noted v" + version))
                 .setStatus(OnlineStatus.ONLINE)
                 .addEventListeners(new SlashCommandListener())
                 .build();

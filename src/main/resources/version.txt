@@ -1,1 +1,1 @@
-${artifactId}-${version}
+${version}
