@@ -349,9 +349,9 @@ public class SlashCommandListener extends ListenerAdapter {
             return;
         }
 
+        Set<String> noteAliases = Main.getStorage().getAliases(note.id);
         Storage.Status status = Main.getStorage().deleteNote(note.id);
         if (status == Storage.Status.SUCCESS) {
-            Set<String> noteAliases = Main.getStorage().getAliases(note.id);
             noteAliases.forEach(aliases::remove);
             event.reply("Note deleted.")
                     .setEphemeral(true)
