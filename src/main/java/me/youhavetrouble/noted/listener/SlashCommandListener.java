@@ -418,7 +418,6 @@ public class SlashCommandListener extends ListenerAdapter {
         String alias = aliasMapping.getAsString();
 
         Storage.Status status = Main.getStorage().deleteAlias(alias);
-        System.out.print(status);
         switch (status) {
             case SUCCESS -> {
                 aliases.remove(alias);

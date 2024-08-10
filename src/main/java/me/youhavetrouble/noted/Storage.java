@@ -174,7 +174,6 @@ public class Storage {
             aliases.add(alias);
             return Status.SUCCESS;
         } catch (SQLException e) {
-            logger.warning(e.getMessage());
             return Status.ALIAS_EXISTS;
         }
     }
