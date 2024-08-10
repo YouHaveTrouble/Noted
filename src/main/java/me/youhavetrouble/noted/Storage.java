@@ -220,6 +220,21 @@ public class Storage {
         }
     }
 
+    public Set<String> getAliases(UUID noteId) {
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT alias FROM aliases WHERE note_id = ?");
+            statement.setString(1, noteId.toString());
+            ResultSet resultSet = statement.executeQuery();
+            Set<String> aliases = new HashSet<>();
+            while (resultSet.next()) {
+                aliases.add(resultSet.getString("alias"));
+            }
+            return aliases;
+        } catch (SQLException e) {
+            return new HashSet<>();
+        }
+    }
+
     @Nullable
     public Note getNote(@NotNull String alias) {
         try (Connection connection = dataSource.getConnection()) {
