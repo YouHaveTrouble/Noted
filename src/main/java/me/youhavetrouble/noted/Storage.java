@@ -186,14 +186,13 @@ public class Storage {
                 return Status.ALIAS_NOT_FOUND;
             }
 
-            PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM aliases WHERE alias = ?");
-            statement.setString(1, alias);
+            PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM aliases WHERE note_id = ?");
+            statement.setString(1, note.id.toString());
             ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                if (resultSet.getInt(1) <= 1) {
-                    // Only one alias left, don't allow deletion
-                    return Status.ALIAS_IS_REQUIRED;
-                }
+
+            if (resultSet.getInt(1) <= 1) {
+                // Only one alias left, don't allow deletion
+                return Status.ALIAS_IS_REQUIRED;
             }
 
             statement = connection.prepareStatement("DELETE FROM aliases WHERE alias = ?");
