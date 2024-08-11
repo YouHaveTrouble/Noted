@@ -1,5 +1,6 @@
 package me.youhavetrouble.noted;
 
+import me.youhavetrouble.noted.command.*;
 import me.youhavetrouble.noted.listener.SlashCommandListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -21,7 +22,7 @@ import java.util.logging.Logger;
 
 public class Main {
 
-    private static final Logger logger = Logger.getLogger("Main");
+    public static final Logger logger = Logger.getLogger("Main");
     private static final Properties properties = new Properties();
     private static String version = "Unknown version";
     private static Storage storage;
@@ -66,142 +67,12 @@ public class Main {
             command = "note";
         }
 
-        jda.upsertCommand(Commands.slash(command, "Get a note")
-                        .setIntegrationTypes(IntegrationType.GUILD_INSTALL, IntegrationType.USER_INSTALL)
-                        .addOptions(
-                                new OptionData(OptionType.STRING, "alias", "The ID of the note", true, true),
-                                new OptionData(OptionType.BOOLEAN, "ephermeal", "Whether the note should be ephermal", false)
-                        )
-                        .setContexts(InteractionContextType.BOT_DM, InteractionContextType.GUILD, InteractionContextType.PRIVATE_CHANNEL)
-                ).queue();
-
-        jda.upsertCommand(Commands.slash("add-note", "Add a note")
-                        .setIntegrationTypes(IntegrationType.USER_INSTALL)
-                        .addOptions(
-                                new OptionData(OptionType.STRING, "alias", "An alias for the note")
-                                        .setMinLength(1)
-                                        .setMaxLength(256)
-                                        .setRequired(true),
-                                new OptionData(OptionType.STRING, "title", "The title of the note")
-                                        .setMinLength(1)
-                                        .setMaxLength(256)
-                                        .setRequired(true),
-                                new OptionData(OptionType.STRING, "content", "The content of the note")
-                                        .setMinLength(1)
-                                        .setMaxLength(4096)
-                                        .setRequired(true),
-                                new OptionData(OptionType.STRING, "title-url", "The image URL of the note")
-                                        .setMinLength(1)
-                                        .setMaxLength(2000)
-                                        .setRequired(false),
-                                new OptionData(OptionType.STRING, "image-url", "The image URL of the note")
-                                        .setMinLength(1)
-                                        .setMaxLength(2000)
-                                        .setRequired(false),
-                                new OptionData(OptionType.STRING, "thumbnail-url", "The thumbnail URL of the note")
-                                        .setMinLength(1)
-                                        .setMaxLength(2000)
-                                        .setRequired(false),
-                                new OptionData(OptionType.STRING, "color", "The color of the note")
-                                        .setMinLength(7)
-                                        .setMaxLength(7)
-                                        .setRequired(false),
-                                new OptionData(OptionType.STRING, "author", "The author of the note")
-                                        .setMinLength(1)
-                                        .setMaxLength(256)
-                                        .setRequired(false),
-                                new OptionData(OptionType.STRING, "author-url", "The author URL of the note")
-                                        .setMinLength(1)
-                                        .setMaxLength(2000)
-                                        .setRequired(false),
-                                new OptionData(OptionType.STRING, "footer", "The footer of the note")
-                                        .setMinLength(1)
-                                        .setMaxLength(256)
-                                        .setRequired(false),
-                                new OptionData(OptionType.STRING, "footer-url", "The footer URL of the note")
-                                        .setMinLength(1)
-                                        .setMaxLength(2000)
-                                        .setRequired(false)
-                        )
-                        .setContexts(InteractionContextType.BOT_DM)
-                ).queue();
-
-        jda.upsertCommand(Commands.slash("edit-note", "Edit a note")
-                .setIntegrationTypes(IntegrationType.USER_INSTALL)
-                .addOptions(
-                        new OptionData(OptionType.STRING, "alias", "An alias for the note")
-                                .setMinLength(1)
-                                .setMaxLength(256)
-                                .setRequired(true),
-                        new OptionData(OptionType.STRING, "title", "The title of the note")
-                                .setMinLength(1)
-                                .setMaxLength(256)
-                                .setRequired(false),
-                        new OptionData(OptionType.STRING, "content", "The content of the note")
-                                .setMinLength(1)
-                                .setMaxLength(4096)
-                                .setRequired(false),
-                        new OptionData(OptionType.STRING, "title-url", "The image URL of the note")
-                                .setMinLength(1)
-                                .setMaxLength(2000)
-                                .setRequired(false),
-                        new OptionData(OptionType.STRING, "image-url", "The image URL of the note")
-                                .setMinLength(1)
-                                .setMaxLength(2000)
-                                .setRequired(false),
-                        new OptionData(OptionType.STRING, "thumbnail-url", "The thumbnail URL of the note")
-                                .setMinLength(1)
-                                .setMaxLength(2000)
-                                .setRequired(false),
-                        new OptionData(OptionType.STRING, "color", "The color of the note")
-                                .setMinLength(7)
-                                .setMaxLength(7)
-                                .setRequired(false),
-                        new OptionData(OptionType.STRING, "author", "The author of the note")
-                                .setMinLength(1)
-                                .setMaxLength(256)
-                                .setRequired(false),
-                        new OptionData(OptionType.STRING, "author-url", "The author URL of the note")
-                                .setMinLength(1)
-                                .setMaxLength(2000)
-                                .setRequired(false),
-                        new OptionData(OptionType.STRING, "footer", "The footer of the note")
-                                .setMinLength(1)
-                                .setMaxLength(256)
-                                .setRequired(false),
-                        new OptionData(OptionType.STRING, "footer-url", "The footer URL of the note")
-                                .setMinLength(1)
-                                .setMaxLength(2000)
-                                .setRequired(false)
-                )
-                .setContexts(InteractionContextType.BOT_DM)
-        ).queue();
-
-        jda.upsertCommand(Commands.slash("delete-note", "Delete a note")
-                .setIntegrationTypes(IntegrationType.USER_INSTALL)
-                .addOptions(
-                        new OptionData(OptionType.STRING, "alias", "The ID of the note", true, true)
-                )
-                .setContexts(InteractionContextType.BOT_DM)
-        ).queue();
-
-        jda.upsertCommand(Commands.slash("add-alias", "Add alias to a note")
-                .setIntegrationTypes(IntegrationType.USER_INSTALL)
-                .addOptions(
-                        new OptionData(OptionType.STRING, "alias", "Existing alias of a note", true, true),
-                        new OptionData(OptionType.STRING, "new-alias", "New alias for the note", true)
-                )
-                .setContexts(InteractionContextType.BOT_DM)
-        ).queue();
-
-        jda.upsertCommand(Commands.slash("delete-alias", "Remove alias to a note")
-                .setIntegrationTypes(IntegrationType.USER_INSTALL)
-                .addOptions(
-                        new OptionData(OptionType.STRING, "alias", "Existing alias of a note", true, true)
-                )
-                .setContexts(InteractionContextType.BOT_DM)
-        ).queue();
-
+        Command.registerCommand(new NoteCommand(command));
+        Command.registerCommand(new AddNoteCommand());
+        Command.registerCommand(new EditNoteCommand());
+        Command.registerCommand(new DeleteNoteCommand());
+        Command.registerCommand(new AddAliasCommand());
+        Command.registerCommand(new DeleteAliasCommand());
     }
 
     private static void loadProperties() {

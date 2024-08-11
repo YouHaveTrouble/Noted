@@ -6,9 +6,13 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.awt.Color;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class Note {
+
+    public static final Set<String> ALIASES = new HashSet<>();
 
     public final UUID id;
     public final String title;
