@@ -29,8 +29,7 @@ public abstract class Command  extends ListenerAdapter {
     }
 
     boolean canUse(User user) {
-        Long adminId = Main.getAdminId();
-        return adminId != null && adminId.equals(user.getIdLong());
+        return Main.getAdminIds().contains(user.getIdLong());
     }
 
     public static void registerCommand(Command command) {

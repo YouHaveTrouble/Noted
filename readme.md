@@ -13,5 +13,5 @@ All users that have the app installed can use the /note (command name configurab
 
 #### Admin
 Only configured admin user can add notes. To add a note, you need to have your user id specified in the noted.properties
-configuration file. You can use add-note command to add a note, edit-note to edit a note, delete-note to delete a note.
+configuration file. You can specify multiple user ids separated by `,`. You can use add-note command to add a note, edit-note to edit a note, delete-note to delete a note.
 Those commands are only available in the direct message channel with the bot.

@@ -6,11 +6,14 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
@@ -21,7 +24,7 @@ public class Main {
     private static final Properties properties = new Properties();
     private static String version = "Unknown version";
     private static Storage storage;
-    private static Long adminId;
+    private static final Set<Long> adminIds = new HashSet<>();
     public static String command;
     public static JDA jda;
 
@@ -44,7 +47,17 @@ public class Main {
 
         logger.info("Starting " + version);
 
-        adminId = Long.parseLong(properties.getProperty("ADMIN_USER_ID"));
+        String adminIdString = properties.getProperty("ADMIN_USER_ID");
+        if (adminIdString != null) {
+            String[] adminIds = adminIdString.split(",");
+            for (String id : adminIds) {
+                try {
+                    Main.adminIds.add(Long.parseLong(id));
+                } catch (NumberFormatException e) {
+                    logger.warning("Invalid admin user ID: " + id);
+                }
+            }
+        }
 
         jda = JDABuilder.createLight(properties.getProperty("DISCORD_TOKEN"), Collections.emptyList())
                 .setCallbackPool(Executors.newVirtualThreadPerTaskExecutor())
@@ -96,9 +109,9 @@ public class Main {
         }
     }
 
-    @Nullable
-    public static Long getAdminId() {
-        return adminId;
+    @NotNull
+    public static Set<Long> getAdminIds() {
+        return adminIds;
     }
 
     public static String getVersion() {
