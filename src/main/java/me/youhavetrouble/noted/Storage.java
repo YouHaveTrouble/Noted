@@ -18,6 +18,8 @@ import java.util.logging.Logger;
 
 public class Storage {
 
+    public static final int DATABASE_VERSION = 1;
+
     public final List<String> aliases = new ArrayList<>();
 
     private final Logger logger = Logger.getLogger("Storage");
@@ -44,6 +46,14 @@ public class Storage {
             connection.createStatement().execute("PRAGMA journal_mode=WAL;");
         } catch (SQLException e) {
             logger.warning("Failed to set journal mode to WAL");
+        }
+
+        try (Connection connection = dataSource.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement("PRAGMA user_version = ?");
+            preparedStatement.setInt(1, DATABASE_VERSION);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            logger.warning("Failed to set database version");
         }
 
         createTables();
