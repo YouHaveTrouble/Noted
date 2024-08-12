@@ -1,6 +1,7 @@
 package me.youhavetrouble.noted.command;
 
 import me.youhavetrouble.noted.Main;
+import me.youhavetrouble.noted.MessageUtil;
 import me.youhavetrouble.noted.Storage;
 import me.youhavetrouble.noted.note.Note;
 import net.dv8tion.jda.api.JDA;
@@ -83,7 +84,10 @@ public class AddNoteCommand extends Command {
             return;
         }
 
-        Note note = Note.createNew(titleOption.getAsString(), contentOption.getAsString());
+        Note note = Note.createNew(
+                MessageUtil.formatForDiscord(titleOption.getAsString()),
+                MessageUtil.formatForDiscord(contentOption.getAsString())
+        );
 
         OptionMapping titleUrlOption = event.getOption("title-url");
         if (titleUrlOption != null) {
@@ -114,7 +118,7 @@ public class AddNoteCommand extends Command {
 
         OptionMapping authorOption = event.getOption("author");
         if (authorOption != null) {
-            note = note.withAuthor(authorOption.getAsString());
+            note = note.withAuthor(MessageUtil.formatForDiscord(authorOption.getAsString()));
         }
 
         OptionMapping authorUrlOption = event.getOption("author-url");
@@ -124,7 +128,7 @@ public class AddNoteCommand extends Command {
 
         OptionMapping footerOption = event.getOption("footer");
         if (footerOption != null) {
-            note = note.withFooter(footerOption.getAsString());
+            note = note.withFooter(MessageUtil.formatForDiscord(footerOption.getAsString()));
         }
 
         OptionMapping footerUrlOption = event.getOption("footer-url");
