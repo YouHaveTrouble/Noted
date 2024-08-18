@@ -8,6 +8,16 @@
     <artifactId>Noted</artifactId>
     <version>1.0.0</version>
 
+    <developers>
+        <developer>
+            <id>youhavetrouble</id>
+            <name>youhavetrouble</name>
+            <email>youhavetrouble@youhavetrouble.me</email>
+            <url>https://youhavetrouble.me</url>
+            <timezone>Europe/Warsaw</timezone>
+        </developer>
+    </developers>
+
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
