@@ -6,7 +6,7 @@
 
     <groupId>me.youhavetrouble.noted</groupId>
     <artifactId>Noted</artifactId>
-    <version>1.0</version>
+    <version>1.0.1</version>
 
     <developers>
         <developer>
@@ -80,18 +80,11 @@
         </resources>
     </build>
 
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
-            <groupId>com.github.freya022</groupId>
+            <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>feature~user-installable-apps-SNAPSHOT</version>
+            <version>5.5.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>club.minnced</groupId>
