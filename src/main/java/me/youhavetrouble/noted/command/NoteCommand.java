@@ -34,7 +34,7 @@ public class NoteCommand extends Command {
                 .setIntegrationTypes(IntegrationType.GUILD_INSTALL, IntegrationType.USER_INSTALL)
                 .addOptions(
                         new OptionData(OptionType.STRING, "alias", "The ID of the note", true, true),
-                        new OptionData(OptionType.BOOLEAN, "ephermeal", "Whether the note should be ephermal", false)
+                        new OptionData(OptionType.BOOLEAN, "ephemeral", "Whether the note should be ephemeral", false)
                 )
                 .setContexts(InteractionContextType.BOT_DM, InteractionContextType.GUILD, InteractionContextType.PRIVATE_CHANNEL)
         ).queue();

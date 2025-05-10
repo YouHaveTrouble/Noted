@@ -6,7 +6,7 @@
 
     <groupId>me.youhavetrouble.noted</groupId>
     <artifactId>Noted</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <developers>
         <developer>
@@ -84,7 +84,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.5.0</version>
+            <version>5.5.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>club.minnced</groupId>
